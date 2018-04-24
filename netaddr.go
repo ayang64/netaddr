@@ -20,7 +20,7 @@ func IPNetwork(block string) ([]net.IP, error) {
 	//
 	// itob() takes an int32 and separates it into bytes.
 	btoi := func(b1, b2, b3, b4 byte) int32 {
-		return (int32(b1)<<24 | int32(b2)<<16 | int32(b3)<<8 | int32(b4))
+		return int32(b1)<<24 | int32(b2)<<16 | int32(b3)<<8 | int32(b4)
 	}
 	itob := func(i int32) []byte {
 		return []byte{byte(i >> 24 & 0xff), byte(i >> 16 & 0xff), byte(i >> 8 & 0xff), byte(i & 0xff)}
