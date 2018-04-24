@@ -4,6 +4,8 @@ import (
 	"net"
 )
 
+// IPNetwork returns a slice of net.IP addresses that fall within a range
+// spcified by a cidr notation block.
 func IPNetwork(block string) ([]net.IP, error) {
 	ip, netw, err := net.ParseCIDR(block)
 
@@ -34,6 +36,7 @@ func IPNetwork(block string) ([]net.IP, error) {
 	// we treat the network addresses as int32 and simply iterate from bcast to
 	// network to find addresses in this CIDR spec.
 	for i := network; i <= bcast; i++ {
+		// convert the int32 address to a net.IP and append it to our return value.
 		rc = append(rc, net.IP(itob(i)))
 	}
 
