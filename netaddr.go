@@ -34,7 +34,7 @@ func IPNetwork(block string) ([]net.IP, error) {
 
 	var rc []net.IP
 	// we treat the network addresses as int32 and simply iterate from bcast to
-	// network to find addresses in this CIDR spec.
+	// network to find addresses within the CIDR block.
 	for i := network; i <= bcast; i++ {
 		// convert the int32 address to a net.IP and append it to our return value.
 		rc = append(rc, net.IP(itob(i)))
