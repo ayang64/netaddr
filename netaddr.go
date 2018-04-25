@@ -2,7 +2,43 @@ package netaddr
 
 import (
 	"net"
+	"unsafe"
 )
+
+func PointerIPNetwork(block string) ([]net.IP, error) {
+	ip, netw, err := net.ParseCIDR(block)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// this wrapper attempts to force addr to a word boundary.
+	type addrWrapper struct {
+		padding int64
+		addr    [4]byte
+	}
+
+	addrArray := addrWrapper{addr: [4]byte{ip[15], ip[14], ip[13], ip[12]}}
+	maskArray := addrWrapper{addr: [4]byte{netw.Mask[3], netw.Mask[2], netw.Mask[1], netw.Mask[0]}}
+
+	addr := *(*int32)(unsafe.Pointer(&addrArray.addr))
+	mask := ^*(*int32)(unsafe.Pointer(&maskArray.addr))
+
+	bcast := addr | mask
+	network := bcast - mask
+
+	var rc []net.IP
+	// we treat the network addresses as int32 and simply iterate from bcast to
+	// network to find addresses within the CIDR block.
+
+	for i := network; i <= bcast; i++ {
+		// convert the int32 address to a net.IP and append it to our return value.
+		a := *(*[4]byte)(unsafe.Pointer(&i))
+		rc = append(rc, net.IP{a[3], a[2], a[1], a[0]})
+	}
+
+	return rc, nil
+}
 
 // IPNetwork returns a slice of net.IP addresses that fall within a range
 // spcified by a cidr notation block.
